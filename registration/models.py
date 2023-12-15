@@ -1,14 +1,72 @@
-import uuid
+import uuid, jwt
+from datetime import datetime, timedelta
 
 from django.db import models
+from django.conf import settings
+from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager,
+PermissionsMixin)
 
-class User(models.Model):
+
+class UserManager(BaseUserManager):
+    def create_user(self, name, email, password):
+        if name is None:
+            raise ValueError("Имя пользователя должно быть определено")
+        if email is None:
+            raise ValueError("Email пользователя должен быть определен")
+        if password is None:
+            raise ValueError("Пароль пользователя должен быть определен")
+        user = self.model(name=name,
+                           email=self.normalize_email(email))
+        user.set_password(password)
+        user.save()
+
+        return user
+
+    def create_admin(self, name, email, password):
+        if name is None:
+            raise ValueError("Имя пользователя должно быть определено")
+        if email is None:
+            raise ValueError("Email пользователя должен быть определен")
+        if password is None:
+            raise ValueError("Пароль пользователя должен быть определен")
+        user = self.model(name=name,
+                           email=self.normalize_email(email))
+        user.set_password(password)
+        user.save()
+
+        return user
+
+class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    name = models.CharField(max_length=200, help_text='Имя Фамилия')
-    email = models.CharField(max_length=200, help_text="user's email")
+    name = models.CharField(max_length=200, help_text='Имя Фамилия', null=True)
+    email = models.EmailField(max_length=200, help_text="user's email",
+                               unique=True)
     phone = models.CharField(max_length=200, help_text="User's phone")
-    password = models.IntegerField()
+    password = models.CharField(max_length=255)
     registration_time = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['name']
+
+    objects = UserManager()
+
+    def __str__(self) -> str:
+        return self.email + ' ' + self.name
+
+    @property
+    def token(self):
+        return self._generate_jwt_token()
+
+    def _generate_jwt_token(self):
+        dt = datetime.now() + timedelta(days=1)
+
+        token = jwt.encode({
+            'id': str(self.pk),
+            'exp': int(dt.strftime('%s'))
+        }, settings.SECRET_KEY, algorithm='HS256')
+
+        return token.decode('utf-8')
 
 
 class Role(models.Model):

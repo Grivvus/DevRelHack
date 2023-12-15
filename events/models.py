@@ -5,7 +5,7 @@ from django.db import models
 class Competition(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     name = models.CharField(max_length=200,
-                            help_text='Название мероприятия')
+                            help_text='Название мероприятия', null=True)
     time_start = models.DateTimeField(null=True)
     time_end = models.DateTimeField(null=True)
     description = models.CharField(max_length=1000)
