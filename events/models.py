@@ -1,5 +1,4 @@
 import uuid
-
 from django.db import models
 
 class Competition(models.Model):
@@ -9,12 +8,18 @@ class Competition(models.Model):
     time_start = models.DateTimeField(null=True)
     time_end = models.DateTimeField(null=True)
     description = models.CharField(max_length=1000)
+    tag = models.ManyToManyField('Tag')
     max_num_of_participants = models.IntegerField()
     level = models.IntegerField()
     sponsors = models.CharField(max_length=200)
     meaner = models.ForeignKey('registration.user', on_delete=models.SET)
 
+    def __str__(self):
+        return self.name
+
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, null=True)
+    def __str__(self):
+        return self.name
