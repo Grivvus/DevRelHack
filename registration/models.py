@@ -8,14 +8,14 @@ PermissionsMixin)
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, name, email, password):
-        if name is None:
+    def create_user(self, username, email, password):
+        if username is None:
             raise ValueError("Имя пользователя должно быть определено")
         if email is None:
             raise ValueError("Email пользователя должен быть определен")
         if password is None:
             raise ValueError("Пароль пользователя должен быть определен")
-        user = self.model(name=name,
+        user = self.model(name=username,
                            email=self.normalize_email(email))
         user.set_password(password)
         user.save()
@@ -38,6 +38,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    username = models.CharField(db_index=True, max_length=255, unique=True)
     name = models.CharField(max_length=200, help_text='Имя Фамилия', null=True)
     email = models.EmailField(max_length=200, help_text="user's email",
                                unique=True)
@@ -47,7 +48,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     updated_at = models.DateTimeField(auto_now=True)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name']
+    REQUIRED_FIELDS = ['username']
 
     objects = UserManager()
 
@@ -66,7 +67,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             'exp': int(dt.strftime('%s'))
         }, settings.SECRET_KEY, algorithm='HS256')
 
-        return token.decode('utf-8')
+        return token
 
 
 class Role(models.Model):
