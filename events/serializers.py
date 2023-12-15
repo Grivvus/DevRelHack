@@ -7,7 +7,7 @@ class CompetitionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Competition
         fields=('name', 'time_start', 'time_end',
-                'description', 'max_num_of_participants',
+                'description','level', 'max_num_of_participants',
                 'sponsors', 'meaner')
 
 class TagSerializer(serializers.ModelSerializer):
