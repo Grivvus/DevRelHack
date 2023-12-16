@@ -1,4 +1,5 @@
-import uuid, jwt
+import uuid
+import jwt
 from datetime import datetime, timedelta
 
 from django.db import models
@@ -8,37 +9,28 @@ PermissionsMixin)
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, username, email, password):
-        if username is None:
+    def create_user(self, name, username, email, password):
+        if name is None:
             raise ValueError("Имя пользователя должно быть определено")
+        if username is None:
+            raise ValueError("Логин пользователя должно быть определено")
         if email is None:
             raise ValueError("Email пользователя должен быть определен")
         if password is None:
             raise ValueError("Пароль пользователя должен быть определен")
-        user = self.model(name=username,
-                           email=self.normalize_email(email))
+        user = self.model(username=username,
+                           email=self.normalize_email(email), name=name)
         user.set_password(password)
         user.save()
 
         return user
 
     def create_admin(self, name, email, password):
-        if name is None:
-            raise ValueError("Имя пользователя должно быть определено")
-        if email is None:
-            raise ValueError("Email пользователя должен быть определен")
-        if password is None:
-            raise ValueError("Пароль пользователя должен быть определен")
-        user = self.model(name=name,
-                           email=self.normalize_email(email))
-        user.set_password(password)
-        user.save()
-
-        return user
+        pass
 
 class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    username = models.CharField(db_index=True, max_length=255, unique=True)
+    username = models.CharField(db_index=True, max_length=255)
     name = models.CharField(max_length=200, help_text='Имя Фамилия', null=True)
     email = models.EmailField(max_length=200, help_text="user's email",
                                unique=True)
