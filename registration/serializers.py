@@ -13,7 +13,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'username', 'name', 'password', 'token']
+        fields = ['email', 'name', 'password', 'token']
 
     def create(self, validate_data):
         return User.objects.create_user(**validate_data)
@@ -45,12 +45,8 @@ class LoginSerializer(serializers.Serializer):
                 'Пользователь с таким логином и паролем не найден'
             )
 
-        if user.username == '':
-            user.username = user.email
-
         return {
             'email': user.email,
-            'username': user.username,
             'token': user.token
         }
 
@@ -64,7 +60,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'username', 'password', 'token',)
+        fields = ('email', 'password', 'token',)
         read_only_fields = ('token',)
 
     def update(self, instance, validated_data):

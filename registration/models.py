@@ -9,17 +9,14 @@ PermissionsMixin)
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, name, username, email, password):
+    def create_user(self, name, email, password):
         if name is None:
             raise ValueError("Имя пользователя должно быть определено")
-        if username is None:
-            raise ValueError("Логин пользователя должно быть определено")
         if email is None:
             raise ValueError("Email пользователя должен быть определен")
         if password is None:
             raise ValueError("Пароль пользователя должен быть определен")
-        user = self.model(username=username,
-                           email=self.normalize_email(email), name=name)
+        user = self.model(email=self.normalize_email(email), name=name)
         user.set_password(password)
         user.save()
 
@@ -30,7 +27,6 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    username = models.CharField(db_index=True, max_length=255)
     name = models.CharField(max_length=200, help_text='Имя Фамилия', null=True)
     email = models.EmailField(max_length=200, help_text="user's email",
                                unique=True)
@@ -40,7 +36,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     updated_at = models.DateTimeField(auto_now=True)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = []
 
     objects = UserManager()
 
@@ -60,6 +56,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         }, settings.SECRET_KEY, algorithm='HS256')
 
         return token
+
+    def is_token_expired(self):
+        time = datetime.now() - timedelta(days=1)
+        if time > self.updated_at:
+            return True
+        return False
 
 
 class Role(models.Model):
