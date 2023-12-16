@@ -45,6 +45,9 @@ class LoginSerializer(serializers.Serializer):
                 'Пользователь с таким логином и паролем не найден'
             )
 
+        if user.username == '':
+            user.username = user.email
+
         return {
             'email': user.email,
             'username': user.username,
