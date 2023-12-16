@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('events', '0002_tag_name'),
+        ('events', '0002_tag_name_alter_competition_name'),
     ]
 
     operations = [

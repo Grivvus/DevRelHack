@@ -17,15 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from events.views import CompetitionAPIView, TagAPIView
-from registration.views import UserAPIView, RoleAPIView, CharacteristicsAPIView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('events/', include('events.urls')),
-    path('registration/', include('registration.urls')),
-
-    # path('index/', include('events.urls'),
-
     path('auth_api/', include('registration.urls')),
     path('index/', include('events.urls'))
 ]
